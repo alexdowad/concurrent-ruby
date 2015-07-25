@@ -34,13 +34,25 @@ VALUE method_atomic_fixnum_value_set(VALUE self, VALUE value) {
 }
 
 VALUE method_atomic_fixnum_increment(VALUE self) {
-  long long value = NUM2LL((VALUE) DATA_PTR(self));
-  return method_atomic_fixnum_value_set(self, LL2NUM(value + 1));
+  VALUE old_value, new_value;
+  for (;;) {
+    old_value = (VALUE) DATA_PTR(self);
+    new_value = LONG2NUM(NUM2LONG(old_value) + 1)
+    if (ir_compare_and_set(self, old_value, new_value) == Qtrue) {
+      return new_value;
+    }
+  }
 }
 
 VALUE method_atomic_fixnum_decrement(VALUE self) {
-  long long value = NUM2LL((VALUE) DATA_PTR(self));
-  return method_atomic_fixnum_value_set(self, LL2NUM(value - 1));
+  VALUE old_value, new_value;
+  for (;;) {
+    old_value = (VALUE) DATA_PTR(self);
+    new_value = LONG2NUM(NUM2LONG(old_value) - 1)
+    if (ir_compare_and_set(self, old_value, new_value) == Qtrue) {
+      return new_value;
+    }
+  }
 }
 
 VALUE method_atomic_fixnum_compare_and_set(VALUE self, VALUE rb_expect, VALUE rb_update) {
