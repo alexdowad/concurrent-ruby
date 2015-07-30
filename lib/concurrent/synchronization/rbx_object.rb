@@ -14,7 +14,13 @@ module Concurrent
         protected
 
         def synchronize(&block)
-          Rubinius.synchronize(self, &block)
+          if Rubinius.locked?(self)
+            #Rubinius.memory_barrier
+            yield
+            #Rubinius.memory_barrier
+          else
+            Rubinius.synchronize(self, &block)
+          end
         end
 
         def ns_wait(timeout = nil)

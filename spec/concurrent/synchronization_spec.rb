@@ -19,7 +19,7 @@ module Concurrent
         end
 
         def count
-          synchronize { @count += 1 }
+          synchronize { @count += 1; Rubinius.memory_barrier; @count }
         end
 
         def wait(timeout = nil)
